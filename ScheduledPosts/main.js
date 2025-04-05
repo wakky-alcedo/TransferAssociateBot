@@ -9,59 +9,61 @@ const CHANNEL_MAP = {
 };
 
 function checkAndPostToDiscord() {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("messages");
-  var data = sheet.getDataRange().getValues();
-  var now = new Date();
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("messages");
+  const data = sheet.getDataRange().getValues();
+  const now = new Date();
 
-  for (var i = 1; i < data.length; i++) {  
-    var postTime = new Date(data[i][0]);  // 投稿日時
-    if (now < postTime) continue;  // まだ投稿時間でなければ次のループへ
+  for (let i = 1; i < data.length; i++) {
+    const postTime = new Date(data[i][0]);
+    if (now < postTime) continue;
 
-    var message = data[i][1];             // メッセージ
-    var channelName = data[i][2];         // チャンネル名
-    var channelId = data[i][3];           // チャンネルID
-    var messageId = data[i][4];           // メッセージID
-    var sentMessage = data[i][5];         // 投稿済みメッセージ
+    const rawMessage = data[i][1];
+    const channelName = data[i][2];
+    let channelId = data[i][3];
+    const messageId = data[i][4];
+    const sentMessage = data[i][5];
 
     if (channelName in CHANNEL_MAP && channelName !== "その他") {
       channelId = CHANNEL_MAP[channelName];
     }
 
+    const parsedMessage = rawMessage.replace(/\\n/g, "\n");
+
     if (!messageId) {  // 未送信なら新規投稿
-      var msgId = postToDiscord(channelId, message);
+      const msgId = postToDiscord(channelId, parsedMessage);
       sheet.getRange(i + 1, 4).setValue(channelId);  // チャンネルIDを保存
       sheet.getRange(i + 1, 5).setValue(msgId);  // メッセージIDを保存
-      sheet.getRange(i + 1, 6).setValue(message); // 投稿済みメッセージを更新
-    } else if (message !== sentMessage) {  // メッセージが変更されていたら編集
-      editDiscordMessage(channelId, messageId, message);
-      sheet.getRange(i + 1, 6).setValue(message); // 投稿済みメッセージを更新
+      sheet.getRange(i + 1, 6).setValue(parsedMessage); // 投稿済みメッセージを更新
+    } else if (parsedMessage !== sentMessage) {  // メッセージが変更されていたら編集
+      editDiscordMessage(channelId, messageId, parsedMessage);
+      sheet.getRange(i + 1, 6).setValue(parsedMessage); // 投稿済みメッセージを更新
     }
   }
 }
 
 function postToDiscord(channelId, message) {
-  var payload = {
-    "action": "post",
-    "channelId": channelId,
-    "message": message
+  const payload = {
+    action: "post",
+    channelId,
+    message
   };
 
-  Logger.log("Sending Payload: " + JSON.stringify(payload));  // 🔹 デバッグ用ログ
+  Logger.log("Sending Payload: " + JSON.stringify(payload));
 
-  var options = {
-    "method": "post",
-    "contentType": "application/json",
-    "payload": JSON.stringify(payload),
-    "muteHttpExceptions": true
+  const options = {
+    method: "post",
+    contentType: "application/json",
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true
   };
 
-  var response = UrlFetchApp.fetch(WORKER_URL, options);
+  const response = UrlFetchApp.fetch(WORKER_URL, options);
   Logger.log("Response Code: " + response.getResponseCode());
   Logger.log("Response Body: " + response.getContentText());
 
   try {
-    var json = JSON.parse(response.getContentText());
-    return json.messageId;  // メッセージIDを返す
+    const json = JSON.parse(response.getContentText());
+    return json.messageId;
   } catch (e) {
     Logger.log("Discord投稿エラー: " + e);
     return null;
@@ -70,25 +72,51 @@ function postToDiscord(channelId, message) {
 
 function editDiscordMessage(channelId, messageId, newContent) {
   if (!messageId) return;
-  var payload = {
-    "action": "edit",
-    "channelId": channelId,
-    "messageId": messageId,
-    "message": newContent
+
+  const payload = {
+    action: "edit",
+    channelId,
+    messageId,
+    message: newContent
   };
 
-  var options = {
-    "method": "post",
-    "contentType": "application/json",
-    "payload": JSON.stringify(payload),
-    "muteHttpExceptions": true
+  const options = {
+    method: "post",
+    contentType: "application/json",
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true
   };
 
   try {
-    var response = UrlFetchApp.fetch(WORKER_URL, options);
+    const response = UrlFetchApp.fetch(WORKER_URL, options);
     Logger.log("Response Code: " + response.getResponseCode());
     Logger.log("Response Body: " + response.getContentText());
   } catch (e) {
     Logger.log("Discordメッセージ編集エラー: " + e.toString());
   }
+}
+
+function replaceMentions(message) {
+  const mentionSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("mention_map");
+  const mentionData = mentionSheet.getDataRange().getValues();
+
+  mentionData.forEach(row => {
+    const [placeholder, type, id] = row;
+    let replacement = placeholder;
+    if (type === "アカウント") {
+      replacement = `<@${id}>`;
+    } else if (type === "ロール") {
+      replacement = `<@&${id}>`;
+    } else if (type === "チャンネル") {
+      replacement = `<#${id}>`;
+    }
+    const regex = new RegExp(escapeRegExp(placeholder), 'g');
+    message = message.replace(regex, replacement);
+  });
+
+  return message;
+}
+
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
