@@ -1,4 +1,3 @@
-// const BOT_TOKEN = "";  // Discord Botのトークン
 const WORKER_URL = "";  // Cloudflare Workers のURL
 
 
@@ -41,38 +40,6 @@ function checkAndPostToDiscord() {
 }
 
 function postToDiscord(channelId, message) {
-  // 直に送るのはうまくいかなかった
-  // var url = "https://discord.com/api/v10/channels/" + channelId + "/messages";
-  // var payload = {
-  //   "content": message
-  // };
-
-  // var options = {
-  //   "method": "post",
-  //   "contentType": "application/json",
-  //   "headers": {
-  //     "Authorization": "Bot " + BOT_TOKEN
-  //   },
-  //   "payload": JSON.stringify(payload),
-  //   "muteHttpExceptions": true
-  // };
-
-  // try {
-  //   var response = UrlFetchApp.fetch(url, options);
-  //   var json = JSON.parse(response.getContentText());
-  //   Logger.log(response.getResponseCode()); // ステータスコード
-  //   Logger.log(response.getContentText()); // 詳細エラーメッセージ
-  //   if (json.code) {
-  //     Logger.log("Discord投稿エラー: " + json.message);
-  //     return "";
-  //   }
-  //   return json.id;  // メッセージIDを取得
-  // } catch (e) {
-  //   Logger.log("Discord投稿エラー: " + e.toString());
-  //   return "";
-  // }
-
-  // CloudFlareで中継させた（立脇のアカウントから）
   var payload = {
     "action": "post",
     "channelId": channelId,
@@ -103,33 +70,6 @@ function postToDiscord(channelId, message) {
 
 function editDiscordMessage(channelId, messageId, newContent) {
   if (!messageId) return;
-  
-  // var url = "https://discord.com/api/v10/channels/" + channelId + "/messages/" + messageId;
-  // var payload = {
-  //   "content": newContent
-  // };
-
-  // var options = {
-  //   "method": "patch",
-  //   "contentType": "application/json",
-  //   "headers": {
-  //     "Authorization": "Bot " + BOT_TOKEN
-  //   },
-  //   "payload": JSON.stringify(payload),
-  //   "muteHttpExceptions": true
-  // };
-
-  // try {
-  //   var response = UrlFetchApp.fetch(url, options);
-  //   var json = JSON.parse(response.getContentText());
-  //   if (json.code) {
-  //     Logger.log("Discord編集エラー: " + json.message);
-  //   }
-  // } catch (e) {
-  //   Logger.log("Discordメッセージ編集エラー: " + e.toString());
-  // }
-
-  // CloudFlareで中継させた（立脇のアカウントから）
   var payload = {
     "action": "edit",
     "channelId": channelId,
