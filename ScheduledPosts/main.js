@@ -42,30 +42,24 @@ function checkAndPostToDiscord() {
 }
 
 function postToDiscord(channelId, message) {
+  if (!message) return;
   const payload = {
-    action: "post",
-    channelId,
-    message
+    apiPath: `/channels/${channelId}/messages`,
+    method: "POST",
+    body: {
+      content: message
+    }
   };
 
   Logger.log("Sending Payload: " + JSON.stringify(payload));
 
-  const options = {
-    method: "post",
-    contentType: "application/json",
-    payload: JSON.stringify(payload),
-    muteHttpExceptions: true
-  };
-
-  const response = UrlFetchApp.fetch(WORKER_URL, options);
-  Logger.log("Response Code: " + response.getResponseCode());
-  Logger.log("Response Body: " + response.getContentText());
-
-  try {
-    const json = JSON.parse(response.getContentText());
-    return json.messageId;
-  } catch (e) {
-    Logger.log("Discord投稿エラー: " + e);
+  const response = postDiscordAPI(payload);
+  const responseData = JSON.parse(response);
+  Logger.log("Response Data: " + JSON.stringify(responseData));
+  if (responseData && responseData.id) {
+    return responseData.id;  // DiscordのメッセージIDを返す
+  } else {
+    Logger.log("Error: " + responseData);
     return null;
   }
 }
@@ -74,11 +68,25 @@ function editDiscordMessage(channelId, messageId, newContent) {
   if (!messageId) return;
 
   const payload = {
-    action: "edit",
-    channelId,
-    messageId,
-    message: newContent
+    apiPath: `/channels/${channelId}/messages/${messageId}`,
+    method: "PATCH",
+    body: {
+      content: newContent
+    }
   };
+  Logger.log("Editing Payload: " + JSON.stringify(payload));
+  const response = postDiscordAPI(payload);
+}
+
+function postDiscordAPI(payload) {
+  // payload
+  // {
+  //   apiPath: "/channels/123456789012345678/messages",
+  //   method: "POST",
+  //   body: {
+  //     content: "Cloudflare Workers経由の投稿テスト"
+  //   }
+  // };
 
   const options = {
     method: "post",
@@ -91,8 +99,15 @@ function editDiscordMessage(channelId, messageId, newContent) {
     const response = UrlFetchApp.fetch(WORKER_URL, options);
     Logger.log("Response Code: " + response.getResponseCode());
     Logger.log("Response Body: " + response.getContentText());
+    if (response.getResponseCode() === 200) {
+      return response.getContentText();
+    } else {
+      Logger.log("Error: " + response.getContentText());
+      return null;
+    }
   } catch (e) {
-    Logger.log("Discordメッセージ編集エラー: " + e.toString());
+    Logger.log("Error: " + e.toString());
+    return null;
   }
 }
 
