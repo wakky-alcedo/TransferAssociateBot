@@ -1,5 +1,5 @@
 const WORKER_URL = "";  // Cloudflare Workers のURL
-
+const DISCORD_BOT_TOKEN = "";  // Discord Botのトークン
 
 const CHANNEL_MAP = {
   "from-幹部（お知らせ）": "1273491895867146301",
@@ -48,7 +48,8 @@ function postToDiscord(channelId, message) {
     method: "POST",
     body: {
       content: message
-    }
+    },
+    discordToken: DISCORD_BOT_TOKEN // Discord Botのトークン
   };
 
   Logger.log("Sending Payload: " + JSON.stringify(payload));
@@ -72,43 +73,11 @@ function editDiscordMessage(channelId, messageId, newContent) {
     method: "PATCH",
     body: {
       content: newContent
-    }
+    },
+    discordToken: DISCORD_BOT_TOKEN // Discord Botのトークン
   };
   Logger.log("Editing Payload: " + JSON.stringify(payload));
   const response = postDiscordAPI(payload);
-}
-
-function postDiscordAPI(payload) {
-  // payload
-  // {
-  //   apiPath: "/channels/123456789012345678/messages",
-  //   method: "POST",
-  //   body: {
-  //     content: "Cloudflare Workers経由の投稿テスト"
-  //   }
-  // };
-
-  const options = {
-    method: "post",
-    contentType: "application/json",
-    payload: JSON.stringify(payload),
-    muteHttpExceptions: true
-  };
-
-  try {
-    const response = UrlFetchApp.fetch(WORKER_URL, options);
-    Logger.log("Response Code: " + response.getResponseCode());
-    Logger.log("Response Body: " + response.getContentText());
-    if (response.getResponseCode() === 200) {
-      return response.getContentText();
-    } else {
-      Logger.log("Error: " + response.getContentText());
-      return null;
-    }
-  } catch (e) {
-    Logger.log("Error: " + e.toString());
-    return null;
-  }
 }
 
 function replaceMentions(message) {
