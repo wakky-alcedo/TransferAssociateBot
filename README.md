@@ -1,0 +1,2 @@
+# TransferAssociateBot
+東京科学大学編入生会のDiscordで運用している自作Bot
