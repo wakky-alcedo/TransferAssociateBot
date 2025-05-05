@@ -16,7 +16,7 @@ export default {
           body: body ? JSON.stringify(body) : null
         });
   
-        const responseText = await discordResponse.text();
+        const responseText = await discordResponse.text(); // Discord APIのレスポンスをテキストとして取得 
   
         return new Response(responseText, {
           status: discordResponse.status,

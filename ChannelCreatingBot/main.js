@@ -93,6 +93,7 @@ function testPostToDiscord() {
 }
 
 // ロールを作成する関数
+// https://discord.com/developers/docs/resources/guild#get-guild-roles
 function createRole(role_name) {
   const payload = {
     apiPath: "/guilds/1266305659868020738/roles", // サーバーIDを指定
@@ -116,6 +117,7 @@ function createRole(role_name) {
 }
 
 // チャンネルを作成する関数
+// https://discord.com/developers/docs/resources/guild#create-guild-channel
 function createChangel(name, topic, role_id) {
   const admin_role_id = "1266305943344517211"; // Discord管理ロールID
   const payload = {
