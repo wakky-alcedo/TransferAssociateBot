@@ -116,7 +116,7 @@ function getInviteList() {
     // Logger.log("Response Data: " + JSON.stringify(responseData));
     // 主要な情報を抽出して，スプレッドシートに書き込む
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("招待リスト"); // シート名を適宜変更
-    sheet.getRange(1, 1, 1, 7).setValues([["招待コード", "招待先チャンネル", "作成者", "使用回数", "最大使用回数", "最大使用時間", "存在"]]); // ヘッダー行を追加
+    sheet.getRange(1, 1, 1, 8).setValues([["招待コード", "招待先チャンネル", "作成者", "作成日時", "使用回数", "最大使用回数", "最大使用時間", "存在"]]); // ヘッダー行を追加
     // 差分を取って，まだ存在しない行を追加する，使用回数が増えていたら，その行を更新する
     const existingData = sheet.getDataRange().getValues(); // 既存のデータを取得 最初は0
     // 前回の値を保存し，存在の列を一旦すべて「deleted」にする
@@ -131,12 +131,13 @@ function getInviteList() {
       const inviteCode = invite.code;
       const channelName = invite.channel.name;
       const inviterName = invite.inviter.username;
+      const createdAt = Utilities.formatDate(new Date(invite.created_at), Session.getScriptTimeZone(), "yyyy/MM/dd HH:mm:ss"); // 作成日時をフォーマット
       const uses = invite.uses || 0; // 使用回数がない場合は0
       const maxUses = invite.max_uses || "unlimited"; // 最大使用回数がない場合は無制限
       const maxAge = invite.max_age || "unlimited"; // 最大使用時間がない場合は無制限
       const existingRow = existingData.find(row => row[0] === inviteCode);
       if (!existingRow) {
-        sheet.appendRow([inviteCode, channelName, inviterName, uses, maxUses, maxAge, "exists"]);
+        sheet.appendRow([inviteCode, channelName, inviterName, createdAt, uses, maxUses, maxAge, "exists"]); // 新しい招待コードを追加
         previousExist.push("exists"); // 存在フラグを保存
       } else {
         const rowIndex = existingData.indexOf(existingRow) + 1; // getRangeに使うときは+1
