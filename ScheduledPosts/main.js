@@ -1,6 +1,3 @@
-const WORKER_URL = "";  // Cloudflare Workers のURL
-const DISCORD_BOT_TOKEN = "";  // Discord Botのトークン
-
 const CHANNEL_MAP = {
   "from-幹部（お知らせ）": "1273491895867146301",
   "募集中のフォーム": "1331227294244671621",
@@ -47,7 +44,7 @@ function postToDiscord(channelId, message) {
     apiPath: `/channels/${channelId}/messages`,
     method: "POST",
     body: {
-      content: message
+      content: replaceMentions(message)
     },
     discordToken: DISCORD_BOT_TOKEN // Discord Botのトークン
   };
@@ -72,7 +69,7 @@ function editDiscordMessage(channelId, messageId, newContent) {
     apiPath: `/channels/${channelId}/messages/${messageId}`,
     method: "PATCH",
     body: {
-      content: newContent
+      content: replaceMentions(newContent)
     },
     discordToken: DISCORD_BOT_TOKEN // Discord Botのトークン
   };
@@ -81,12 +78,15 @@ function editDiscordMessage(channelId, messageId, newContent) {
 }
 
 function replaceMentions(message) {
+  message = message.replace(/＠/g, "@"); // ＠を@に変換
+  // Logger.log("Original Message: " + message); // デバッグ用ログ
   const mentionSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("mention_map");
   const mentionData = mentionSheet.getDataRange().getValues();
 
   mentionData.forEach(row => {
     const [placeholder, type, id] = row;
-    let replacement = placeholder;
+    const placeholderWithAt = `@${placeholder}`; // placeholderの冒頭に@をつける
+    let replacement = placeholderWithAt;
     if (type === "アカウント") {
       replacement = `<@${id}>`;
     } else if (type === "ロール") {
@@ -94,10 +94,11 @@ function replaceMentions(message) {
     } else if (type === "チャンネル") {
       replacement = `<#${id}>`;
     }
-    const regex = new RegExp(escapeRegExp(placeholder), 'g');
+    const regex = new RegExp(escapeRegExp(placeholderWithAt), 'g'); // プレースホルダを正規表現に変換
     message = message.replace(regex, replacement);
   });
 
+  // Logger.log("Processed Message: " + message); // デバッグ用ログ
   return message;
 }
 
