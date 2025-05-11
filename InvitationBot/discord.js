@@ -80,7 +80,8 @@ function getMemberList() {
       }
       if (!existingRow) {
         sheet.appendRow([userName, userId, globalName, serverNickname, pronouns, roles, role_names, joinedAt, "exists"]); // 新しいメンバーを追加
-        newMembers.add(userId); // 新しいメンバーをセットに追加
+        // newMembers.add(userId); // 新しいメンバーをセットに追加
+        newMembers.add(member); // 新しいメンバーをセットに追加
       } else {
         // 既存の情報を更新
         const rowIndex = existingData.indexOf(existingRow) + 1; // 行番号は1から始まるので+1
@@ -117,11 +118,14 @@ function getInviteList() {
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("招待リスト"); // シート名を適宜変更
     sheet.getRange(1, 1, 1, 7).setValues([["招待コード", "招待先チャンネル", "作成者", "使用回数", "最大使用回数", "最大使用時間", "存在"]]); // ヘッダー行を追加
     // 差分を取って，まだ存在しない行を追加する，使用回数が増えていたら，その行を更新する
-    const existingData = sheet.getDataRange().getValues(); // 既存のデータを取得
-    // 存在の列を一旦すべて「deleted」にする
+    const existingData = sheet.getDataRange().getValues(); // 既存のデータを取得 最初は0
+    // 前回の値を保存し，存在の列を一旦すべて「deleted」にする
+    var previousExist = [];
     for (let i = 1; i < existingData.length; i++) {
+      previousExist.push(existingData[i][6]); // 存在フラグを保存
       sheet.getRange(i + 1, 7).setValue("deleted"); // 存在フラグを「deleted」に更新
     }
+    Logger.log("previousExist: " + previousExist);
     var updatedInviteCodes = new Set(); // 使用回数が更新されていた招待コードのリスト
     responseData.forEach(invite => {
       const inviteCode = invite.code;
@@ -133,8 +137,9 @@ function getInviteList() {
       const existingRow = existingData.find(row => row[0] === inviteCode);
       if (!existingRow) {
         sheet.appendRow([inviteCode, channelName, inviterName, uses, maxUses, maxAge, "exists"]);
+        previousExist.push("exists"); // 存在フラグを保存
       } else {
-        const rowIndex = existingData.indexOf(existingRow) + 1; // 行番号は1から始まるので+1
+        const rowIndex = existingData.indexOf(existingRow) + 1; // getRangeに使うときは+1
         // 存在フラグを「exists」に更新
         sheet.getRange(rowIndex, 7).setValue("exists"); // 存在フラグを更新
         // 使用回数が増えていたら，その行を更新する
@@ -145,9 +150,22 @@ function getInviteList() {
         }
       }
     });
+    // 今回削除された招待コードをupdatedInviteCodesに追加する
+    var nowExist = [];
+    for (let i = 1; i < existingData.length; i++) {
+      nowExist.push(sheet.getRange(i + 1, 7).getValue()); // 存在フラグを保存
+    }
+    Logger.log("nowExist: " + nowExist);
+    for (let i = 0; i < existingData.length; i++) {
+      if (previousExist[i] === "exists" && sheet.getRange(1 + i + 1, 7).getValue() === "deleted") {
+        updatedInviteCodes.add(existingData[i+1][0]); // 招待コードをセットに追加
+        Logger.log("now deleted: " + existingData[i+1][0]);
+      }
+    }
   } catch (e) {
     Logger.log("Error: " + e.toString());
   }
+  Logger.log("updatedInviteCodes: " + Array.from(updatedInviteCodes));
   return updatedInviteCodes; // 更新された招待コードのセットを返す
 }
 

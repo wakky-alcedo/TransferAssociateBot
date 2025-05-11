@@ -1,22 +1,18 @@
 function sendEmailOnFormSubmit(e) {
-    // DiscordウェブフックURL
-    var webhookURL = '';
-  
     Logger.log(e); // デバッグ用ログ
   
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("フォームの回答 1"); // シート名を適宜変更
     var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0]; // 質問の項目名を取得
     var row = e.range.getRow(); // 編集された行番号
-    var rawValues  = sheet.getRange(row, 1, 1, sheet.getLastColumn()).getValues()[0]; // 質問の項目名を取得
+    var rawValues  = sheet.getRange(row, 1, 1, sheet.getLastColumn()).getValues()[0]; // 編集された行の値を取得
     // 値を適切な形式に変換
     var nowValues = rawValues.map((value, index) => {
-      var columnLetter = String.fromCharCode(65 + index); // A=0, B=1, ..., G=6, M=12
-  
-      if (columnLetter === "A" /*&& value instanceof Date*/) {
+      const columnName = headers[index]; // 列名を取得
+      if (columnName === "タイムスタンプ" /*&& value instanceof Date*/) {
         return Utilities.formatDate(value, Session.getScriptTimeZone(), "yyyy/MM/dd HH:mm:ss"); // M列の値を日付形式に変換
-      } else if (columnLetter === "G" /*&& typeof value === "number"*/) {
+      } else if (columnName === "入学年度" /*&& typeof value === "number"*/) {
         return Math.round(value).toString(); // G列を整数にして文字列化
-      } else if (columnLetter === "M" /*&& value instanceof Date*/) {
+      } else if (columnName === "生年月日" /*&& value instanceof Date*/) {
         return Utilities.formatDate(value, Session.getScriptTimeZone(), "yyyy/MM/dd"); // M列の値を日付形式に変換
       }
       return value; // それ以外はそのまま
@@ -123,27 +119,32 @@ function sendEmailOnFormSubmit(e) {
       'payload' : payload
     };
   
-    UrlFetchApp.fetch(webhookURL, options);
+    UrlFetchApp.fetch(WEBHOOKURL_FORM, options);
   
 }
 
 // 定期的に招待コードの更新とメンバーリストの更新を行い，どのメンバーが参加したかをスプレッドシートに記録する関数
 function updateInviteCodeAndMemberList() {
-  const inviteCodes = getInviteList(); // 招待コードを取得
+  const inviteCodes = Array.from(getInviteList()); // 招待コードのリストを取得しt配列に変換
   Logger.log("inviteCode = " + inviteCodes);
-  const newMemberList = getMemberList(); // メンバーリストを取得
-  Logger.log("memberList = " + JSON.stringify(newMemberList));
+  const newMemberList = Array.from(getMemberList()); // メンバーリストを取得し配列に変換
+  Logger.log("memberList = " + newMemberList);
+  // Logger.log("memberList = " + newMnmberList);
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("フォームの回答 1"); // シート名を適宜変更
   inviteCodes.forEach((code, index) => {
     // sheetの中から，招待コードが存在する行を探す
-    const inviteCodeRow = sheet.getRange(1, 1, sheet.getLastRow(), 1).getValues().findIndex(row => row[0] === code.code);
+    Logger.log("code = " + code);
+    const discordInviteCodeColumn = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].indexOf("Discord 招待コード"); // "Discord 招待コード"という列を取得
+    Logger.log("discordInviteCodeColumn = " + discordInviteCodeColumn); // 16
+    const inviteCodeRow = sheet.getRange(1, discordInviteCodeColumn + 1, sheet.getLastRow(), 1).getValues().findIndex(row => row[0] === code); // 招待コードが存在する行を取得 0始まり
+    Logger.log("inviteCodeRow = " + inviteCodeRow);
     if (inviteCodeRow !== -1) {
       // 招待コードが存在する場合，その行に追加されたメンバーのID（newMemberList）を追加
       const discordIdColumn = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].indexOf("Discord ID"); // "Discord ID"という列を取得
       sheet.getRange(inviteCodeRow + 1, discordIdColumn + 1).setValue(newMemberList.map(member => member.user.id).join(","));
     } else {
       // 招待コードが存在しない場合，エラー
-      Logger.log("Error: 招待コードが見つかりませんでした: " + code.code);
+      Logger.log("Error: 招待コードが見つかりませんでした: " + code);
     }
   });
 }
