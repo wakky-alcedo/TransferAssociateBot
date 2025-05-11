@@ -63,15 +63,23 @@ function sendEmailOnFormSubmit(e) {
       }
     }
     changesList += "</ul>";
-  
+
     // メッセージを作成
     var subject = "";
     var body = "";
     var discord_body = "**入会フォーム**";
     body += "<p>フォームの回答、ありがとうございます。</p>";
     // body += '<p> <a href="https://discord.gg/gmuBwhpBNp" target="_blank">こちら</a> より、編入生会のDiscordに参加してください。</p>';
-    body += '<p>以下のリンクより、編入生会のDiscordに参加してください。<br>';
-    body += 'https://discord.gg/gmuBwhpBNp</p>';
+        
+    // 新しい回答の場合，招待コードを発行して，メールに追加
+    if (is_new) {
+      const inviteCode = fetchInviteCode();
+      body += '<p>以下のリンクより、編入生会のDiscordに参加してください。<br>';
+      body += 'https://discord.gg/' + inviteCode + '</p>';
+      // 一番右の列に招待コードを追加
+      const discordInviteCodeColumn = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].indexOf("Discord 招待コード"); // "Discord 招待コード"という列を取得
+      sheet.getRange(row, discordInviteCodeColumn + 1).setValue(inviteCode); // 招待コードを追加
+    }
   
     if (is_new) {
       subject = "【自動返信】フォームの送信を受け付けました";
@@ -117,5 +125,25 @@ function sendEmailOnFormSubmit(e) {
   
     UrlFetchApp.fetch(webhookURL, options);
   
-  }
-  
+}
+
+// 定期的に招待コードの更新とメンバーリストの更新を行い，どのメンバーが参加したかをスプレッドシートに記録する関数
+function updateInviteCodeAndMemberList() {
+  const inviteCodes = getInviteList(); // 招待コードを取得
+  Logger.log("inviteCode = " + inviteCodes);
+  const newMemberList = getMemberList(); // メンバーリストを取得
+  Logger.log("memberList = " + JSON.stringify(newMemberList));
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("フォームの回答 1"); // シート名を適宜変更
+  inviteCodes.forEach((code, index) => {
+    // sheetの中から，招待コードが存在する行を探す
+    const inviteCodeRow = sheet.getRange(1, 1, sheet.getLastRow(), 1).getValues().findIndex(row => row[0] === code.code);
+    if (inviteCodeRow !== -1) {
+      // 招待コードが存在する場合，その行に追加されたメンバーのID（newMemberList）を追加
+      const discordIdColumn = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].indexOf("Discord ID"); // "Discord ID"という列を取得
+      sheet.getRange(inviteCodeRow + 1, discordIdColumn + 1).setValue(newMemberList.map(member => member.user.id).join(","));
+    } else {
+      // 招待コードが存在しない場合，エラー
+      Logger.log("Error: 招待コードが見つかりませんでした: " + code.code);
+    }
+  });
+}
