@@ -15,7 +15,7 @@ function fetchInviteCode() {
   try {
     const response = postDiscordAPI(payload);
     const responseData = JSON.parse(response);
-    Logger.log("Response Data: " + JSON.stringify(responseData));
+    // Logger.log("Response Data: " + JSON.stringify(responseData));
     // 主要な情報を抽出して，スプレッドシートに書き込む
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("招待リスト"); // シート名を適宜変更
     sheet.getRange(1, 1, 1, 7).setValues([["招待コード", "招待先チャンネル", "作成者", "使用回数", "最大使用回数", "最大使用時間", "存在"]]); // ヘッダー行を追加
@@ -40,11 +40,11 @@ function getMemberList() {
   try {
     const response = postDiscordAPI(payload);
     const responseData = JSON.parse(response);
-    Logger.log("Response Data: " + JSON.stringify(responseData));
+    // Logger.log("Response Data: " + JSON.stringify(responseData));
     // 主要な情報を抽出して，スプレッドシートに書き込む
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("メンバーリスト"); // シート名を適宜変更
     // 一行目にヘッダー行を追加
-    sheet.getRange(1, 1, 1, 8).setValues([["ユーザー名", "ユーザーID", "グローバル名", "サーバーでの名前", "代名詞", "ロール", "ロール名", "参加日時"]]);
+    sheet.getRange(1, 1, 1, 9).setValues([["ユーザー名", "ユーザーID", "グローバル名", "サーバーでの名前", "代名詞", "ロール", "ロール名", "参加日時", "存在"]]);
     // 差分を取って，まだ存在しない行を追加する
     const existingData = sheet.getDataRange().getValues(); // 既存のデータを取得
 
@@ -57,6 +57,10 @@ function getMemberList() {
       const roleId = row[1]; // ロールID
       roleMap[roleId] = roleName; // ロールIDをキーにしてロール名をマッピング
     });
+
+    for (let i = 1; i < existingData.length; i++) {
+      sheet.getRange(i + 1, 9).setValue("deleted"); // 存在フラグを「deleted」に更新
+    }
 
     var newMembers = new Set(); // 新しいメンバーのリスト
     responseData.forEach(member => {
@@ -71,11 +75,11 @@ function getMemberList() {
       const existingRow = existingData.find(row => row[1] === userId);
       // Botの情報は除外する
       if (member.user.bot) {
-      Logger.log("Bot detected: " + userName + " (" + userId + ")");
-      return; // Botの場合はスキップ
+        // Logger.log("Bot detected: " + userName + " (" + userId + ")");
+        return; // Botの場合はスキップ
       }
       if (!existingRow) {
-        sheet.appendRow([userName, userId, globalName, serverNickname, pronouns, roles, role_names, joinedAt]);
+        sheet.appendRow([userName, userId, globalName, serverNickname, pronouns, roles, role_names, joinedAt, "exists"]); // 新しいメンバーを追加
         newMembers.add(userId); // 新しいメンバーをセットに追加
       } else {
         // 既存の情報を更新
@@ -87,6 +91,7 @@ function getMemberList() {
         sheet.getRange(rowIndex, 6).setValue(roles); // ロールを更新
         sheet.getRange(rowIndex, 7).setValue(role_names); // ロール名を更新
         sheet.getRange(rowIndex, 8).setValue(joinedAt); // 参加日時を更新
+        sheet.getRange(rowIndex, 9).setValue("exists"); // 存在フラグを更新
       }
     });
   } catch (e) {
@@ -107,7 +112,7 @@ function getInviteList() {
   try {
     const response = postDiscordAPI(payload);
     const responseData = JSON.parse(response);
-    Logger.log("Response Data: " + JSON.stringify(responseData));
+    // Logger.log("Response Data: " + JSON.stringify(responseData));
     // 主要な情報を抽出して，スプレッドシートに書き込む
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("招待リスト"); // シート名を適宜変更
     sheet.getRange(1, 1, 1, 7).setValues([["招待コード", "招待先チャンネル", "作成者", "使用回数", "最大使用回数", "最大使用時間", "存在"]]); // ヘッダー行を追加
@@ -158,7 +163,7 @@ function getRoleList() {
   try {
     const response = postDiscordAPI(payload);
     const responseData = JSON.parse(response);
-    Logger.log("Response Data: " + JSON.stringify(responseData));
+    // Logger.log("Response Data: " + JSON.stringify(responseData));
     // 主要な情報を抽出して，スプレッドシートに書き込む
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("ロール一覧"); // シート名を適宜変更
     sheet.getRange(1, 1, 1, 2).setValues([["ロール名", "ロールID"]]); // ヘッダー行を追加
