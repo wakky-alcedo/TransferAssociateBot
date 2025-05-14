@@ -103,6 +103,20 @@ function addRoleToUser(token, userId, roleId) {
   const response = postDiscordAPI(payload);
 }
 
+// ユーザーからロールを削除する関数
+// https://discord.com/developers/docs/resources/guild#remove-guild-member-role
+function removeRoleFromUser(token, userId, roleId) {
+  const payload = {
+    apiPath: `/guilds/${GUILD_ID}/members/${userId}/roles/${roleId}`,
+    method: "DELETE",
+    discordToken: token // Discord Botのトークン
+  };
+
+  Logger.log("Sending Payload: " + JSON.stringify(payload));
+
+  const response = postDiscordAPI(payload);
+}
+
 // エラーメッセージを専用スレッドに送信する関数
 function sendErrorMessage(errorMessage) {
   sendMessage(BOT_TOKEN_NOTIFY, "1372057829938171986", errorMessage); // エラーメッセージを送信

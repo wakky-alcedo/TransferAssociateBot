@@ -13,11 +13,19 @@ function addRoleFormForm (e) {
 
   Logger.log("name: " + name);
 
+  const participationColumn = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].indexOf("参加しますか") + 1; // "参加" の列番号を取得
+  const participation = nowValues[participationColumn - 1]; // 参加の回答を取得
+
   // Discordのロールを付与する関数を呼び出す
   const discordId = getDiscordId(name); // Discord IDを取得する関数
   if (discordId) {
-    addRoleToUser(BOT_TOKEN_ADMIN, discordId, ROLE_ID); // ロールを付与する関数
-    Logger.log(`Added role ${ROLE_ID} to user ${discordId}`);
+    if (participation == "はい") {
+      addRoleToUser(BOT_TOKEN_ADMIN, discordId, ROLE_ID); // ロールを付与する関数
+      Logger.log(`Added role ${ROLE_ID} to user ${discordId}`);
+    } else {
+      removeRoleFromUser(BOT_TOKEN_ADMIN, discordId, ROLE_ID); // ロールを削除する関数
+      Logger.log(`Removed role ${ROLE_ID} from user ${discordId}`);
+    }
   } else {
     Logger.log(`User ${name} not found`);
     sendErrorMessage(`User ${name} not found`); // エラーメッセージを送信
