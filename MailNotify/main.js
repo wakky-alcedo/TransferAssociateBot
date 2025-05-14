@@ -1,6 +1,4 @@
 function sendEmailToDiscord() {
-    // DiscordウェブフックURL
-    var webhookURL = '';
   
     // 最後に処理したメールのIDを取得（プロパティサービスから）
     var scriptProperties = PropertiesService.getScriptProperties();
@@ -14,6 +12,7 @@ function sendEmailToDiscord() {
     for (var i = 0; i < threads.length; i++) {
       var thread = threads[i];
       var messages = thread.getMessages(); // スレッド内のすべてのメッセージを取得
+      var label = thread.getLabels(); // スレッドに付いているラベルを取得
       
       for (var j = 0; j < messages.length; j++) {
         message = messages[j];
@@ -44,8 +43,15 @@ function sendEmailToDiscord() {
                              '**Date**: ' + date + '\n' +
                              truncatedBody;
   
-        // DiscordのウェブフックにPOSTリクエストを送信
-        sendMessageByWebhook(webhookURL, messageContent);
+        // ラベルに応じて，メッセージを送信するWebhook URLもしくはチャンネルIDを選択
+        if (label.some(l => l.getName() === 'SNSログイン' || l.getName() === 'Googleログイン')) {
+          sendMessageByWebhook(WEBHOOKURL_LOGIN, messageContent);
+        } else if (label.some(l => l.getName() === 'Bot系')) {
+          postToDiscord("1372057698992128130", messageContent);
+        } else {
+          sendMessageByWebhook(WEBHOOKURL_MAIL, messageContent);
+        }
+        
   
         // 最後に処理したメールのIDを保存
         scriptProperties.setProperty('lastProcessedId', message.getId());
