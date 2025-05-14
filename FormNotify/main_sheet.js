@@ -47,15 +47,7 @@ function sendDiscord(e) {
 
 
   // DiscordのウェブフックにPOSTリクエストを送信
-  var payload = JSON.stringify({ content: body });
-  var options = {
-    'method' : 'post',
-    'contentType' : 'application/json',
-    'payload' : payload
-  };
-
-  UrlFetchApp.fetch(WEBHOOKURL_FORM, options);
-
+  sendMessageByWebhook(WEBHOOKURL_FORM, body); // Discordにメッセージを送信
 }
 
 

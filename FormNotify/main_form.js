@@ -9,17 +9,5 @@ const onSubmit = (e) => {
       {}
     );
   Logger.log(data);
-  sendMessage(data);
+  sendMessageByWebhook(WEBHOOKURL_FORM, data);
 };
-
-const sendMessage = (webhook_url, massage) => {
-  const request = {
-    method: "post",
-    "content-type": "application/json",
-    payload: {
-      content: massage,
-    },
-  };
-  UrlFetchApp.fetch(WEBHOOKURL_FORM, request);
-}
-

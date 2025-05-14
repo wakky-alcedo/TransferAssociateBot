@@ -13,29 +13,18 @@ const onSubmit = (e) => {
     );
   Logger.log(data);
   if (data["送信先チャンネル"] == "「to-幹部（質問・意見）」＆「to-幹部（質問・意見-幹部限定）」") {
-    sendMessage(WEBHOOK_URL, data["分類"]+": "+data["意見質問の内容"])
+    sendMessageByWebhook(WEBHOOK_URL, data["分類"]+": "+data["意見質問の内容"])
     if (data["名前（やり取りが必要な場合のみ）"] != "") {
-      sendMessage(WEBHOOK_URL_PRIVATE, data["分類"]+" （"+data["名前（やり取りが必要な場合のみ）"]+"）\n内容: "+data["意見質問の内容"])
+      sendMessageByWebhook(WEBHOOK_URL_PRIVATE, data["分類"]+" （"+data["名前（やり取りが必要な場合のみ）"]+"）\n内容: "+data["意見質問の内容"])
     }
   } else {
     if (data["名前（やり取りが必要な場合のみ）"] != "") {
-      sendMessage(WEBHOOK_URL_PRIVATE, data["分類"]+" （"+data["名前（やり取りが必要な場合のみ）"]+"）\n内容: "+data["意見質問の内容"])
+      sendMessageByWebhook(WEBHOOK_URL_PRIVATE, data["分類"]+" （"+data["名前（やり取りが必要な場合のみ）"]+"）\n内容: "+data["意見質問の内容"])
     } else {
-      sendMessage(WEBHOOK_URL_PRIVATE, data["分類"]+"\n内容: "+data["意見質問の内容"])
+      sendMessageByWebhook(WEBHOOK_URL_PRIVATE, data["分類"]+"\n内容: "+data["意見質問の内容"])
     }
   }
 };
-
-const sendMessage = (webhook_url, massage) => {
-  const request = {
-    method: "post",
-    "content-type": "application/json",
-    payload: {
-      content: massage,
-    },
-  };
-  UrlFetchApp.fetch(webhook_url, request);
-}
 
 // テスト用
 function testOnSubmit() {

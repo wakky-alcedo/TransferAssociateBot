@@ -112,15 +112,7 @@ function sendEmailOnFormSubmit(e) {
   
     // Discordにも送る
     // DiscordのウェブフックにPOSTリクエストを送信
-    var payload = JSON.stringify({ content: discord_body });
-    var options = {
-      'method' : 'post',
-      'contentType' : 'application/json',
-      'payload' : payload
-    };
-  
-    UrlFetchApp.fetch(WEBHOOKURL_FORM, options);
-  
+    sendMessageByWebhook(WEBHOOKURL_FORM, discord_body); // Discordにメッセージを送信
 }
 
 // 定期的に招待コードの更新とメンバーリストの更新を行い，どのメンバーが参加したかをスプレッドシートに記録する関数

@@ -45,14 +45,7 @@ function sendEmailToDiscord() {
                              truncatedBody;
   
         // DiscordのウェブフックにPOSTリクエストを送信
-        var payload = JSON.stringify({ content: messageContent });
-        var options = {
-          'method' : 'post',
-          'contentType' : 'application/json',
-          'payload' : payload
-        };
-  
-        UrlFetchApp.fetch(webhookURL, options);
+        sendMessageByWebhook(webhookURL, messageContent);
   
         // 最後に処理したメールのIDを保存
         scriptProperties.setProperty('lastProcessedId', message.getId());
