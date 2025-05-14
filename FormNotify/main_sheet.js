@@ -3,8 +3,8 @@
 // SEND_COLUMN: 何のフォームかを指定
 // 一度実行して，権限を承認する
 
-const FORM_NAME = "サークル紹介"; // フォームの名前を指定
-const SEND_COLUMN = 3; // 何列目の情報を送るか指定（Aが1行目）
+const FORM_NAME = "ピザパ"; // フォームの名前を指定
+const SEND_COLUMNS = [1, 4]; // 送信する列のインデックスを指定（Aが1行目）
 
 function sendDiscord(e) {
   Logger.log(e); // デバッグ用ログ
@@ -18,7 +18,6 @@ function sendDiscord(e) {
   var newValues = e.values; // 今回の送信データ
   Logger.log(newValues)
 
-  var name = sheet.getRange(row, SEND_COLUMN).getValue(); // 送る情報を取得
   var body = `**${FORM_NAME}**`;
       
   // 差分チェック用の「前回の値」列を取得 (例: 最後の列)
@@ -33,11 +32,19 @@ function sendDiscord(e) {
   }
 
   if (is_change) {
-    body += "(変更) ";
+    body += "(変更) \n";
   } else {
-    body += "(送信) ";
+    body += "(送信) \n";
   }
-  body += name;
+
+  // 送信する列の情報を取得
+  for (var i = 0; i < SEND_COLUMNS.length; i++) {
+    var columnIndex = SEND_COLUMNS[i] - 1; // 0から始まるインデックスに変換
+    var columnName = headers[columnIndex];
+    var newValue = newValues[columnIndex] || ""; // 新しい値を取得
+    body += `${columnName}: ${newValue} \n`;
+  }
+
 
   // DiscordのウェブフックにPOSTリクエストを送信
   var payload = JSON.stringify({ content: body });
