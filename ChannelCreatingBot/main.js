@@ -24,7 +24,6 @@ function createClassChangel(e) {
   const role_name = class_code.substring(0, 3) + "-" + class_name;
   const role_id = createRole(role_name);
 
-
   // チャンネル作成
   // チャンネル名は「科目コードの前3文字+科目名」にする
   const channel_name = class_code.substring(0, 3) + "-" + class_name;
@@ -84,12 +83,6 @@ function testCreateRole() {
 }
 function testCreateChangel() {
   const channel_id = createChangel("テストチャンネル", "トピックです", "1362390181675663541");
-}
-function testsendMessage() {
-  const channelId = "1331888326394773545"; // チャンネルID
-  const message = "テストメッセージ";
-  const messageId = sendMessage(channelId, message);
-  Logger.log(messageId);
 }
 
 // ロールを作成する関数
@@ -161,30 +154,3 @@ function createChangel(name, topic, role_id) {
   Logger.log("channel_id = " + channel_id);
   return channel_id;
 }
-
-// メッセージ
-function sendMessage(channelId, message) {
-  if (!message) return;
-  const payload = {
-    apiPath: `/channels/${channelId}/messages`,
-    method: "POST",
-    body: {
-      content: message
-    },
-    discordToken: DISCORD_BOT_TOKEN // Discord Botのトークン
-  };
-
-  Logger.log("Sending Payload: " + JSON.stringify(payload));
-
-  const response = postDiscordAPI(payload);
-  const responseData = JSON.parse(response);
-  Logger.log("Response Data: " + JSON.stringify(responseData));
-  if (responseData && responseData.id) {
-    Logger.log("message_id = " + responseData.id);
-    return responseData.id;  // DiscordのメッセージIDを返す
-  } else {
-    Logger.log("Error: " + responseData);
-    return null;
-  }
-}
-  

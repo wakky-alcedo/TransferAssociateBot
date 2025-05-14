@@ -27,7 +27,7 @@ function checkAndSendMessage() {
     const parsedMessage = rawMessage.replace(/\\n/g, "\n");
 
     if (!messageId) {  // 未送信なら新規投稿
-      const msgId = sendMessage(channelId, parsedMessage);
+      const msgId = sendMessage(channelId, replaceMentions(parsedMessage));
       sheet.getRange(i + 1, 4).setValue(channelId);  // チャンネルIDを保存
       sheet.getRange(i + 1, 5).setValue(msgId);  // メッセージIDを保存
       sheet.getRange(i + 1, 6).setValue(parsedMessage); // 投稿済みメッセージを更新
@@ -36,45 +36,6 @@ function checkAndSendMessage() {
       sheet.getRange(i + 1, 6).setValue(parsedMessage); // 投稿済みメッセージを更新
     }
   }
-}
-
-function sendMessage(channelId, message) {
-  if (!message) return;
-  const payload = {
-    apiPath: `/channels/${channelId}/messages`,
-    method: "POST",
-    body: {
-      content: replaceMentions(message)
-    },
-    discordToken: DISCORD_BOT_TOKEN // Discord Botのトークン
-  };
-
-  Logger.log("Sending Payload: " + JSON.stringify(payload));
-
-  const response = postDiscordAPI(payload);
-  const responseData = JSON.parse(response);
-  Logger.log("Response Data: " + JSON.stringify(responseData));
-  if (responseData && responseData.id) {
-    return responseData.id;  // DiscordのメッセージIDを返す
-  } else {
-    Logger.log("Error: " + responseData);
-    return null;
-  }
-}
-
-function editDiscordMessage(channelId, messageId, newContent) {
-  if (!messageId) return;
-
-  const payload = {
-    apiPath: `/channels/${channelId}/messages/${messageId}`,
-    method: "PATCH",
-    body: {
-      content: replaceMentions(newContent)
-    },
-    discordToken: DISCORD_BOT_TOKEN // Discord Botのトークン
-  };
-  Logger.log("Editing Payload: " + JSON.stringify(payload));
-  const response = postDiscordAPI(payload);
 }
 
 function replaceMentions(message) {

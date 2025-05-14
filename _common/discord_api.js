@@ -58,6 +58,22 @@ function sendMessage(channelId, message) {
     return null;
   }
 }
+
+// メッセージを編集する関数
+function editDiscordMessage(channelId, messageId, newContent) {
+  if (!messageId) return;
+
+  const payload = {
+    apiPath: `/channels/${channelId}/messages/${messageId}`,
+    method: "PATCH",
+    body: {
+      content: replaceMentions(newContent)
+    },
+    discordToken: DISCORD_BOT_TOKEN // Discord Botのトークン
+  };
+  Logger.log("Editing Payload: " + JSON.stringify(payload));
+  const response = postDiscordAPI(payload);
+}
   
 // メッセージにリアクションをつける関数
 // https://discord.com/developers/docs/resources/channel#reaction-object-reaction-structure
