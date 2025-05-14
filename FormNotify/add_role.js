@@ -14,13 +14,13 @@ function addRoleFormForm (e) {
   Logger.log("name: " + name);
 
   // Discordのロールを付与する関数を呼び出す
-  const discordId = getDiscordId(name); // Discord IDを取得する関数（実装が必要）
+  const discordId = getDiscordId(name); // Discord IDを取得する関数
   if (discordId) {
-    addRoleToUser(BOT_TOKEN_ADMIN, discordId, ROLE_ID); // ロールを付与する関数（実装が必要）
+    addRoleToUser(BOT_TOKEN_ADMIN, discordId, ROLE_ID); // ロールを付与する関数
     Logger.log(`Added role ${ROLE_ID} to user ${discordId}`);
   } else {
     Logger.log(`User ${name} not found`);
-    // sendMessageByWebhook(WEBHOOKURL_BOT_ERROR, `User ${name} not found`); // エラーメッセージを送信
+    sendErrorMessage(`User ${name} not found`); // エラーメッセージを送信
   }
 }
 

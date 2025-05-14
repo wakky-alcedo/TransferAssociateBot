@@ -102,3 +102,8 @@ function addRoleToUser(token, userId, roleId) {
 
   const response = postDiscordAPI(payload);
 }
+
+// エラーメッセージを専用スレッドに送信する関数
+function sendErrorMessage(errorMessage) {
+  sendMessage(BOT_TOKEN_NOTIFY, "1372057829938171986", errorMessage); // エラーメッセージを送信
+}
