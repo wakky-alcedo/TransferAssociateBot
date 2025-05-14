@@ -1,39 +1,39 @@
 function postDiscordAPI(payload) {
-    // payload
-    // {
-    //   apiPath: "/channels/123456789012345678/messages",
-    //   method: "POST",
-    //   body: {
-    //     content: "Cloudflare Workers経由の投稿テスト"
-    //   },
-    //   discordToken: DISCORD_BOT_TOKEN // Discord Botのトークン
-    // };
-  
-    const options = {
-      method: "post",
-      contentType: "application/json",
-      payload: JSON.stringify(payload),
-      muteHttpExceptions: true
-    };
-  
-    try {
-      const response = UrlFetchApp.fetch(WORKER_URL, options);
-      Logger.log("Response Code: " + response.getResponseCode());
-      Logger.log("Response Body: " + response.getContentText());
-      if (response.getResponseCode() >= 200 && response.getResponseCode() < 300) {
-        return response.getContentText();
-      } else {
-        Logger.log("Error: " + response.getContentText());
-        return null;
-      }
-    } catch (e) {
-      Logger.log("Error: " + e.toString());
+  // payload
+  // {
+  //   apiPath: "/channels/123456789012345678/messages",
+  //   method: "POST",
+  //   body: {
+  //     content: "Cloudflare Workers経由の投稿テスト"
+  //   },
+  //   discordToken: DISCORD_BOT_TOKEN // Discord Botのトークン
+  // };
+
+  const options = {
+    method: "post",
+    contentType: "application/json",
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true
+  };
+
+  try {
+    const response = UrlFetchApp.fetch(WORKER_URL, options);
+    Logger.log("Response Code: " + response.getResponseCode());
+    Logger.log("Response Body: " + response.getContentText());
+    if (response.getResponseCode() >= 200 && response.getResponseCode() < 300) {
+      return response.getContentText();
+    } else {
+      Logger.log("Error: " + response.getContentText());
       return null;
     }
+  } catch (e) {
+    Logger.log("Error: " + e.toString());
+    return null;
   }
+}
 
 
-// メッセージ送信
+// メッセージを送信する関数（ channelId は threadId でも可）
 function postToDiscord(channelId, message) {
   if (!message) return;
   const payload = {
@@ -60,8 +60,6 @@ function postToDiscord(channelId, message) {
 }
   
 // メッセージにリアクションをつける関数
-// document: https://discord.com/developers/docs/resources/channel#add-reaction
-// Create Reaction
 // https://discord.com/developers/docs/resources/channel#reaction-object-reaction-structure
 function addReaction(channelId, messageId, emoji) {
   const payload = {
@@ -73,16 +71,6 @@ function addReaction(channelId, messageId, emoji) {
   Logger.log("Sending Payload: " + JSON.stringify(payload));
 
   const response = postDiscordAPI(payload);
-}
-
-function testAddReaction() {
-  const channelId = "1331888326394773545"; // チャンネルID
-  const messageId = "1362398005071712396"; // メッセージID
-  // const emoji = "👍"; // 絵文字
-  // const emoji = "go:1363893249881800975"; // 絵文字 Botが持っているやつ
-  const emoji = "go:1356659377968517150"; // 絵文字ID サーバーのやつ
-
-  addReaction(channelId, messageId, encodeURIComponent(emoji));
 }
 
 // ユーザーにロールを付与する関数
@@ -97,12 +85,4 @@ function addRoleToUser(userId, roleId) {
   Logger.log("Sending Payload: " + JSON.stringify(payload));
 
   const response = postDiscordAPI(payload);
-}
-
-// ユーザーにロールをつけるテスト
-function testAddRoleToUser() {
-  const userId = "684920384822313093"; // ユーザーID
-  const roleId = "1299984270344851478"; // ロールID　土木
-
-  addRoleToUser(userId, roleId);
 }
