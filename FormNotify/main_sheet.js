@@ -4,9 +4,9 @@
 // 一度実行して，権限を承認する
 
 const FORM_NAME = "ピザパ"; // フォームの名前を指定
-const SEND_COLUMNS = [1, 4]; // 送信する列のインデックスを指定（Aが1行目）
+const SEND_COLUMNS = [2, 5]; // 送信する列のインデックスを指定（Aが1行目）
 
-function sendDiscord(e) {
+function onSubmit(e) {
   Logger.log(e); // デバッグ用ログ
 
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("フォームの回答 1"); // シート名を適宜変更
@@ -44,7 +44,6 @@ function sendDiscord(e) {
     var newValue = newValues[columnIndex] || ""; // 新しい値を取得
     body += `${columnName}: ${newValue} \n`;
   }
-
 
   // DiscordのウェブフックにPOSTリクエストを送信
   sendMessageByWebhook(WEBHOOKURL_FORM, body); // Discordにメッセージを送信
