@@ -12,7 +12,6 @@ function sendEmailToDiscord() {
     for (var i = 0; i < threads.length; i++) {
       var thread = threads[i];
       var messages = thread.getMessages(); // スレッド内のすべてのメッセージを取得
-      var label = thread.getLabels(); // スレッドに付いているラベルを取得
       
       for (var j = 0; j < messages.length; j++) {
         message = messages[j];
@@ -42,11 +41,23 @@ function sendEmailToDiscord() {
                              '**From**: ' + from + '\n' +
                              '**Date**: ' + date + '\n' +
                              truncatedBody;
-  
+        
+        var label = "";
+        // from に no-reply@accounts.google.com が含まれている場合は
+        if (from.includes('no-reply@accounts.google.com') && body.includes('お使いの Google アカウントへのアクセス')) {
+          label = "Bot系" // 新たなアクセスの許可
+        } else if (from.includes('noreply-apps-scripts-notifications@google.com') && body.includes('Summary of failures for Google Apps Script')) {
+          label = "Bot系" // Google Apps Scriptのエラー
+        } else if (from.includes('no-reply@accounts.google.com') && (body.includes('での新しいログイン') || body.includes('アカウントへの新しいログイン'))) {
+          label = "Googleログイン"
+        } else if (body.includes('Xへの新規ログインがありました')) {
+          label = "SNSログイン" // Xへの新規ログイン
+        }
+
         // ラベルに応じて，メッセージを送信するWebhook URLもしくはチャンネルIDを選択
-        if (label.some(l => l.getName() === 'SNSログイン' || l.getName() === 'Googleログイン')) {
+        if (label === "Googleログイン" || label === "SNSログイン") {
           sendMessageByWebhook(WEBHOOKURL_LOGIN, messageContent);
-        } else if (label.some(l => l.getName() === 'Bot系')) {
+        } else if (label === "Bot系") {
           postToDiscord("1372057698992128130", messageContent);
         } else {
           sendMessageByWebhook(WEBHOOKURL_MAIL, messageContent);
