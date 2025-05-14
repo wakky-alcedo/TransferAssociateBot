@@ -34,7 +34,7 @@ function postDiscordAPI(payload) {
 
 
 // メッセージを送信する関数（ channelId は threadId でも可）
-function sendMessage(channelId, message) {
+function sendMessage(token, channelId, message) {
   if (!message) return;
   const payload = {
     apiPath: `/channels/${channelId}/messages`,
@@ -42,7 +42,7 @@ function sendMessage(channelId, message) {
     body: {
       content: message
     },
-    discordToken: DISCORD_BOT_TOKEN // Discord Botのトークン
+    discordToken: token // Discord Botのトークン
   };
 
   Logger.log("Sending Payload: " + JSON.stringify(payload));
@@ -60,7 +60,7 @@ function sendMessage(channelId, message) {
 }
 
 // メッセージを編集する関数
-function editDiscordMessage(channelId, messageId, newContent) {
+function editDiscordMessage(token, channelId, messageId, newContent) {
   if (!messageId) return;
 
   const payload = {
@@ -69,7 +69,7 @@ function editDiscordMessage(channelId, messageId, newContent) {
     body: {
       content: replaceMentions(newContent)
     },
-    discordToken: DISCORD_BOT_TOKEN // Discord Botのトークン
+    discordToken: token // Discord Botのトークン
   };
   Logger.log("Editing Payload: " + JSON.stringify(payload));
   const response = postDiscordAPI(payload);
@@ -77,11 +77,11 @@ function editDiscordMessage(channelId, messageId, newContent) {
   
 // メッセージにリアクションをつける関数
 // https://discord.com/developers/docs/resources/channel#reaction-object-reaction-structure
-function addReaction(channelId, messageId, emoji) {
+function addReaction(token, channelId, messageId, emoji) {
   const payload = {
     apiPath: `/channels/${channelId}/messages/${messageId}/reactions/${emoji}/@me`,
     method: "PUT",
-    discordToken: DISCORD_BOT_TOKEN // Discord Botのトークン
+    discordToken: token // Discord Botのトークン
   };
 
   Logger.log("Sending Payload: " + JSON.stringify(payload));
@@ -91,11 +91,11 @@ function addReaction(channelId, messageId, emoji) {
 
 // ユーザーにロールを付与する関数
 // https://discord.com/developers/docs/resources/guild#add-guild-member
-function addRoleToUser(userId, roleId) {
+function addRoleToUser(token, userId, roleId) {
   const payload = {
     apiPath: `/guilds/${GUILD_ID}/members/${userId}/roles/${roleId}`,
     method: "PUT",
-    discordToken: DISCORD_BOT_TOKEN // Discord Botのトークン
+    discordToken: token // Discord Botのトークン
   };
 
   Logger.log("Sending Payload: " + JSON.stringify(payload));

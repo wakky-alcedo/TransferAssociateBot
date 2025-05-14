@@ -1,6 +1,6 @@
 // 招待リンクを作成する関数
 // https://discord.com/developers/docs/resources/channel#create-channel-invite
-function fetchInviteCode() {
+function fetchInviteCode(token) {
   const payload = {
     apiPath: "/channels/1299991935137611868/invites", // チャンネルIDを適宜変更
     method: "POST",
@@ -9,7 +9,7 @@ function fetchInviteCode() {
       max_uses: 1, // 1回
       unique: true // 招待リンクの重複を避ける
     },
-    discordToken: DISCORD_BOT_TOKEN // Discord Botのトークン
+    discordToken: token // Discord Botのトークン
   };
 
   try {
@@ -29,12 +29,12 @@ function fetchInviteCode() {
 
 // メンバーリストを取得する関数
 // https://discord.com/developers/docs/resources/guild#list-guild-members
-function getMemberList() {
+function getMemberList(token) {
   const payload = {
     apiPath: "/guilds/1266305659868020738/members?limit=1000", // サーバーIDを適宜変更
     // apiPath: "/guilds/1266305659868020738/members/684920384822313093", // サーバーIDを適宜変更
     method: "GET",
-    discordToken: DISCORD_BOT_TOKEN // Discord Botのトークン
+    discordToken: token // Discord Botのトークン
   };
 
   try {
@@ -103,11 +103,11 @@ function getMemberList() {
 
 // 招待リストを取得する関数
 // https://discord.com/developers/docs/resources/guild#get-guild-invites
-function getInviteList() {
+function getInviteList(token) {
   const payload = {
     apiPath: "/guilds/1266305659868020738/invites", // サーバーIDを適宜変更
     method: "GET",
-    discordToken: DISCORD_BOT_TOKEN // Discord Botのトークン
+    discordToken: token // Discord Botのトークン
   };
 
   try {
@@ -172,11 +172,11 @@ function getInviteList() {
 
 // ロール一覧を取得する関数
 // https://discord.com/developers/docs/resources/guild#get-guild-roles
-function getRoleList() {
+function getRoleList(token) {
   const payload = {
     apiPath: "/guilds/1266305659868020738/roles", // サーバーIDを適宜変更
     method: "GET",
-    discordToken: DISCORD_BOT_TOKEN // Discord Botのトークン
+    discordToken: token // Discord Botのトークン
   };
 
   try {

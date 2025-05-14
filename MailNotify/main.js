@@ -58,7 +58,7 @@ function sendEmailToDiscord() {
         if (label === "Googleログイン" || label === "SNSログイン") {
           sendMessageByWebhook(WEBHOOKURL_LOGIN, messageContent);
         } else if (label === "Bot系") {
-          sendMessage("1372057698992128130", messageContent);
+          sendMessage(BOT_TOKEN_NOTIFY, "1372057698992128130", messageContent);
         } else {
           sendMessageByWebhook(WEBHOOKURL_MAIL, messageContent);
         }

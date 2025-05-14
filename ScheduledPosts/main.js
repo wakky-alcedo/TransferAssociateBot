@@ -27,12 +27,12 @@ function checkAndSendMessage() {
     const parsedMessage = rawMessage.replace(/\\n/g, "\n");
 
     if (!messageId) {  // 未送信なら新規投稿
-      const msgId = sendMessage(channelId, replaceMentions(parsedMessage));
+      const msgId = sendMessage(BOT_TOKEN_ADMIN, channelId, replaceMentions(parsedMessage));
       sheet.getRange(i + 1, 4).setValue(channelId);  // チャンネルIDを保存
       sheet.getRange(i + 1, 5).setValue(msgId);  // メッセージIDを保存
       sheet.getRange(i + 1, 6).setValue(parsedMessage); // 投稿済みメッセージを更新
     } else if (parsedMessage !== sentMessage) {  // メッセージが変更されていたら編集
-      editDiscordMessage(channelId, messageId, parsedMessage);
+      editDiscordMessage(BOT_TOKEN_ADMIN, channelId, messageId, parsedMessage);
       sheet.getRange(i + 1, 6).setValue(parsedMessage); // 投稿済みメッセージを更新
     }
   }

@@ -1,6 +1,4 @@
-const WORKER_URL = "https://*************************-cloudflare.workers.dev";  // Cloudflare Workers のURL
-const DISCORD_BOT_TOKEN = "YOUR_DISCORD_BOT_TOKEN"; // Discord Botのトークン
-
+const DISCORD_BOT_TOKEN = BOT_TOKEN_CHANNEL; // Discord Botのトークン
 
 function createClassChangel(e) {
   // フォームから名前とURLを取得
@@ -22,16 +20,16 @@ function createClassChangel(e) {
 
   // ロールを作成
   const role_name = class_code.substring(0, 3) + "-" + class_name;
-  const role_id = createRole(role_name);
+  const role_id = createRole(DISCORD_BOT_TOKEN, role_name);
 
   // チャンネル作成
   // チャンネル名は「科目コードの前3文字+科目名」にする
   const channel_name = class_code.substring(0, 3) + "-" + class_name;
-  const channel_id = createChangel(channel_name, url, role_id);
+  const channel_id = createChangel(DISCORD_BOT_TOKEN, channel_name, url, role_id);
   const admin_role_id = "1266305943344517211"; // Discord管理ロールID
 
   // オンボーディングの質問にロールとチャンネルを追加
-  const message_id = sendMessage("1331176449389887578", 
+  const message_id = sendMessage(DISCORD_BOT_TOKEN, "1331176449389887578", 
                       `<@&${admin_role_id}> ${name}さんが ${class_code} ${class_name} の授業を受講します。\n` +
                   `ロール: <@&${role_id}>，` +
                   `チャンネル: <#${channel_id}>\n` +
@@ -43,7 +41,7 @@ function createClassChangel(e) {
   Logger.log(message_id);
 
 
-  const announce_message_id = sendMessage("1331176449389887578", 
+  const announce_message_id = sendMessage(DISCORD_BOT_TOKEN, "1331176449389887578", 
                       "`"+`${channel_name}(<#${channel_id}>)を作成しました．` +
                       `<id:customize>の"見たい授業チャンネル..."から選択してください` +"`");
   Logger.log(announce_message_id);
@@ -77,17 +75,17 @@ function testCreateClassChangel() {
 }
 function testCreateRole() {
   const role_name = "新しいロールテスト";
-  const role_id = createRole(role_name);
+  const role_id = createRole(DISCORD_BOT_TOKEN, role_name);
   Logger.log("role_id = " + role_id);
   // return role_id;
 }
 function testCreateChangel() {
-  const channel_id = createChangel("テストチャンネル", "トピックです", "1362390181675663541");
+  const channel_id = createChangel(DISCORD_BOT_TOKEN, "テストチャンネル", "トピックです", "1362390181675663541");
 }
 
 // ロールを作成する関数
 // https://discord.com/developers/docs/resources/guild#get-guild-roles
-function createRole(role_name) {
+function createRole(token, role_name) {
   const payload = {
     apiPath: "/guilds/1266305659868020738/roles", // サーバーIDを指定
     method: "POST",
@@ -99,7 +97,7 @@ function createRole(role_name) {
       position: 0, // ポジション
       mentionable: true // メンション可能フラグ
     },
-    discordToken: DISCORD_BOT_TOKEN // Discord Botのトークン
+    discordToken: token // Discord Botのトークン
   };
   const response = postDiscordAPI(payload);
   const response_json = JSON.parse(response);
@@ -111,7 +109,7 @@ function createRole(role_name) {
 
 // チャンネルを作成する関数
 // https://discord.com/developers/docs/resources/guild#create-guild-channel
-function createChangel(name, topic, role_id) {
+function createChangel(token, name, topic, role_id) {
   const admin_role_id = "1266305943344517211"; // Discord管理ロールID
   const payload = {
     apiPath: "/guilds/1266305659868020738/channels",
@@ -145,7 +143,7 @@ function createChangel(name, topic, role_id) {
       parent_id: "1273475189522305035", // カテゴリIDを指定（"授業-Class"）
       nsfw: false // NSFWフラグ（NSFWとはNot Safe For Workの略で，18禁コンテンツを含むチャンネルのこと）
     },
-    discordToken: DISCORD_BOT_TOKEN // Discord Botのトークン
+    discordToken: token // Discord Botのトークン
   };
   const response = postDiscordAPI(payload);
   const response_json = JSON.parse(response);

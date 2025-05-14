@@ -1,3 +1,5 @@
+const DISCORD_BOT_TOKEN = BOT_TOKEN_INVITE; // Discord Botのトークン
+
 function sendEmailOnFormSubmit(e) {
     Logger.log(e); // デバッグ用ログ
   
@@ -69,7 +71,7 @@ function sendEmailOnFormSubmit(e) {
         
     // 新しい回答の場合，招待コードを発行して，メールに追加
     if (is_new) {
-      const inviteCode = fetchInviteCode();
+      const inviteCode = fetchInviteCode(DISCORD_BOT_TOKEN);
       body += '<p>以下のリンクより、編入生会のDiscordに参加してください。<br>';
       body += 'https://discord.gg/' + inviteCode + '</p>';
       // 一番右の列に招待コードを追加
@@ -117,9 +119,9 @@ function sendEmailOnFormSubmit(e) {
 
 // 定期的に招待コードの更新とメンバーリストの更新を行い，どのメンバーが参加したかをスプレッドシートに記録する関数
 function updateInviteCodeAndMemberList() {
-  const inviteCodes = Array.from(getInviteList()); // 招待コードのリストを取得しt配列に変換
+  const inviteCodes = Array.from(getInviteList(DISCORD_BOT_TOKEN)); // 招待コードのリストを取得しt配列に変換
   Logger.log("inviteCode = " + inviteCodes);
-  const newMemberList = Array.from(getMemberList()); // メンバーリストを取得し配列に変換
+  const newMemberList = Array.from(getMemberList(DISCORD_BOT_TOKEN)); // メンバーリストを取得し配列に変換
   Logger.log("memberList = " + newMemberList);
   // Logger.log("memberList = " + newMnmberList);
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("フォームの回答 1"); // シート名を適宜変更
