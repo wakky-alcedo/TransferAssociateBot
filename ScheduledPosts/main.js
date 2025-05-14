@@ -5,7 +5,7 @@ const CHANNEL_MAP = {
   "その他": null
 };
 
-function checkAndPostToDiscord() {
+function checkAndSendMessage() {
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("messages");
   const data = sheet.getDataRange().getValues();
   const now = new Date();
@@ -27,7 +27,7 @@ function checkAndPostToDiscord() {
     const parsedMessage = rawMessage.replace(/\\n/g, "\n");
 
     if (!messageId) {  // 未送信なら新規投稿
-      const msgId = postToDiscord(channelId, parsedMessage);
+      const msgId = sendMessage(channelId, parsedMessage);
       sheet.getRange(i + 1, 4).setValue(channelId);  // チャンネルIDを保存
       sheet.getRange(i + 1, 5).setValue(msgId);  // メッセージIDを保存
       sheet.getRange(i + 1, 6).setValue(parsedMessage); // 投稿済みメッセージを更新
@@ -38,7 +38,7 @@ function checkAndPostToDiscord() {
   }
 }
 
-function postToDiscord(channelId, message) {
+function sendMessage(channelId, message) {
   if (!message) return;
   const payload = {
     apiPath: `/channels/${channelId}/messages`,

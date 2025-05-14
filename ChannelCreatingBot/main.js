@@ -32,7 +32,7 @@ function createClassChangel(e) {
   const admin_role_id = "1266305943344517211"; // Discord管理ロールID
 
   // オンボーディングの質問にロールとチャンネルを追加
-  const message_id = postToDiscord("1331176449389887578", 
+  const message_id = sendMessage("1331176449389887578", 
                       `<@&${admin_role_id}> ${name}さんが ${class_code} ${class_name} の授業を受講します。\n` +
                   `ロール: <@&${role_id}>，` +
                   `チャンネル: <#${channel_id}>\n` +
@@ -44,7 +44,7 @@ function createClassChangel(e) {
   Logger.log(message_id);
 
 
-  const announce_message_id = postToDiscord("1331176449389887578", 
+  const announce_message_id = sendMessage("1331176449389887578", 
                       "`"+`${channel_name}(<#${channel_id}>)を作成しました．` +
                       `<id:customize>の"見たい授業チャンネル..."から選択してください` +"`");
   Logger.log(announce_message_id);
@@ -85,10 +85,10 @@ function testCreateRole() {
 function testCreateChangel() {
   const channel_id = createChangel("テストチャンネル", "トピックです", "1362390181675663541");
 }
-function testPostToDiscord() {
+function testsendMessage() {
   const channelId = "1331888326394773545"; // チャンネルID
   const message = "テストメッセージ";
-  const messageId = postToDiscord(channelId, message);
+  const messageId = sendMessage(channelId, message);
   Logger.log(messageId);
 }
 
@@ -163,7 +163,7 @@ function createChangel(name, topic, role_id) {
 }
 
 // メッセージ
-function postToDiscord(channelId, message) {
+function sendMessage(channelId, message) {
   if (!message) return;
   const payload = {
     apiPath: `/channels/${channelId}/messages`,

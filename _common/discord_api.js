@@ -34,8 +34,7 @@ function postDiscordAPI(payload) {
 
 
 // メッセージを送信する関数（ channelId は threadId でも可）
-// todo: 関数名を sendMessageに変更
-function postToDiscord(channelId, message) {
+function sendMessage(channelId, message) {
   if (!message) return;
   const payload = {
     apiPath: `/channels/${channelId}/messages`,
