@@ -46,12 +46,14 @@ function sendEmailToDiscord() {
         // from に no-reply@accounts.google.com が含まれている場合は
         if (from.includes('no-reply@accounts.google.com') && body.includes('お使いの Google アカウントへのアクセス')) {
           label = "Bot系" // 新たなアクセスの許可
-        } else if (from.includes('noreply-apps-scripts-notifications@google.com') && body.includes('Summary of failures for Google Apps Script')) {
+        } else if (from.includes('noreply-apps-scripts-notifications@google.com') && subject.includes('Summary of failures for Google Apps Script')) {
           label = "Bot系" // Google Apps Scriptのエラー
         } else if (from.includes('no-reply@accounts.google.com') && (body.includes('での新しいログイン') || body.includes('アカウントへの新しいログイン'))) {
           label = "Googleログイン"
         } else if (body.includes('Xへの新規ログインがありました')) {
           label = "SNSログイン" // Xへの新規ログイン
+        } else if (from.includes('security@mail.instagram.com') && body.includes('新しいログインがありました')) {
+          label = "SNSログイン" // Instagramへの新規ログイン
         }
 
         // ラベルに応じて，メッセージを送信するWebhook URLもしくはチャンネルIDを選択
