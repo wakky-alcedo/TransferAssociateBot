@@ -31,7 +31,7 @@ function addRoleFormForm (e) {
   const participation = nowValues[participationColumn - 1]; // 参加の回答を取得
 
   // Discordのロールを付与する関数を呼び出す
-  const discordId = getDiscordId(name, studentNumber); // Discord IDを取得する関数
+  const discordId = getDataFromMemberList("Discord ID", name, studentNumber); // Discord IDを取得
   if (discordId) {
     if (participation == "はい") {
       addRoleToUser(BOT_TOKEN_ADMIN, discordId, ROLE_ID); // ロールを付与する関数
@@ -44,35 +44,6 @@ function addRoleFormForm (e) {
     Logger.log(`User ${name} not found`);
     sendErrorMessage(`User ${name} not found`); // エラーメッセージを送信
   }
-}
-
-function getDiscordId(nameInput, studentNumberInput) {
-  // 名簿のスプレッドシートからDiscord IDを取得する関数
-  // アクティブではないスプレッドシートを開く
-  const ss = SpreadsheetApp.openById(MEMBER_LIST_ID); // スプレッドシートのIDを指定
-  // ssのすべてのシートをループ
-  const sheets = ss.getSheets();
-  for (const sheet of sheets) {
-    const data = sheet.getDataRange().getValues(); // シートのデータを取得
-    const nameColumn = data[0].indexOf("氏名") + 1; // "氏名" の列番号を取得
-    const studentNumberColumn = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].indexOf("学籍番号") + 1; // "学籍番号" の列番号を取得
-    const discordIdColumn = data[0].indexOf("Discord ID") + 1; // "Discord ID" の列番号を取得
-    for (let i = 1; i < data.length; i++) { // 1行目はヘッダーなのでスキップ
-      const row = data[i];
-      // 名前の一致は，スペースを除去して比較
-      const nameWithoutSpaceInput = nameInput.replace(/\s+/g, "");
-      const nameWithoutSpace = row[nameColumn - 1].replace(/\s+/g, "");
-      const studentNumber = row[studentNumberColumn - 1];
-      if (nameWithoutSpaceInput && nameWithoutSpace === nameWithoutSpaceInput) { // 氏名が一致する行を探す
-        Logger.log("Found name: " + nameWithoutSpace);
-        return row[discordIdColumn - 1]; // Discord IDを返す
-      } else if (studentNumberInput && studentNumber === studentNumberInput) { // 学籍番号が一致する行を探す
-        Logger.log("Found student number: " + studentNumber);
-        return row[discordIdColumn - 1]; // Discord IDを返す
-      }
-    }
-  }
-  return null; // 見つからなかった場合はnullを返す
 }
 
 function testAddRole() {
