@@ -16,6 +16,8 @@ function sendEmailOnFormSubmit(e) {
         return Math.round(value).toString(); // G列を整数にして文字列化
       } else if (columnName === "生年月日" /*&& value instanceof Date*/) {
         return Utilities.formatDate(value, Session.getScriptTimeZone(), "yyyy/MM/dd"); // M列の値を日付形式に変換
+      } else if (columnName === "学籍番号" && typeof value === "number") {
+        return Math.round(value).toString(); // 学籍番号を整数にして文字列化
       }
       return value; // それ以外はそのまま
     });
