@@ -30,7 +30,7 @@ function onSubmit(e) {
     // 名前と学籍番号を取得
     const name = getValueFromSheet(sheet, row, "氏名"); // 氏名を取得
     const studentNumber = getValueFromSheet(sheet, row, "学籍番号"); // 学籍番号を取得
-    const discordId = getDataFromMemberList("Discord ID", name, studentNumber); // Discord IDを取得
+    const discordId = getDataFromMemberList(["Discord ID"], name, studentNumber); // Discord IDを取得
     Logger.log("name: " + name);
     Logger.log("studentNumber: " + studentNumber);
     Logger.log("participation: " + participation);

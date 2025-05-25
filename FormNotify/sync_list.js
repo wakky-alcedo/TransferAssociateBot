@@ -27,13 +27,16 @@ function saveDataToSpreadsheetFromMemberList() {
     if (studentNumberColumn !== -1) { // 学籍番号の列が存在する場合
       studentNumberInput = row[studentNumberColumn - 1]; // 学籍番号の入力値を取得
     }
-    for (let j = 0; j < GET_COLUMNS.length; j++) {
-      const columnIndex = GET_COLUMNS[j] - 1; // 0から始まるインデックスに変換
-      const columnName = nowHeaders[columnIndex];
-      const data = getDataFromMemberList(columnName, nameInput, studentNumberInput); // 名簿からデータを取得
-      if (data) {
-        nowSheet.getRange(i, columnIndex + 1).setValue(data); // データを保存
+    // GET_COLUMNS の各列について，名簿からデータを取得
+    const headers = nowHeaders.filter((header, index) => GET_COLUMNS.includes(index + 1)); // GET_COLUMNSに対応するヘッダー名を取得
+    const data = getDataFromMemberList(headers, nameInput, studentNumberInput); // 名簿からデータを取得
+    if (data) { // データが見つかった場合
+      for (let j = 0; j < GET_COLUMNS.length; j++) { // 各列について
+        const colIndex = GET_COLUMNS[j] - 1; // 列番号を0始まりに変換
+        nowSheet.getRange(i, colIndex + 1).setValue(data[j]); // データをセット
       }
+    } else {
+      Logger.log(`No data found for name: ${nameInput}, student number: ${studentNumberInput}`);
     }
   }
 }
