@@ -10,13 +10,14 @@ function getDataFromMemberList(dataName, nameInput, studentNumberInput) {
   for (const sheet of sheets) {
     const data = sheet.getDataRange().getValues(); // シートのデータを取得
     const nameColumn = data[0].indexOf("氏名") + 1; // "氏名" の列番号を取得
-    const studentNumberColumn = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].indexOf("学籍番号") + 1; // "学籍番号" の列番号を取得
+    const studentNumberColumn = data[0].indexOf("学籍番号") + 1; // "学籍番号" の列番号を取得
     const dataColumn = data[0].indexOf(dataName) + 1; // dataName の列番号を取得
     for (let i = 1; i < data.length; i++) { // 1行目はヘッダーなのでスキップ
       const row = data[i];
       // 名前の一致は，スペースを除去して比較
-      const nameWithoutSpaceInput = nameInput.replace(/\s+/g, "");
-      const nameWithoutSpace = row[nameColumn - 1].replace(/\s+/g, "");
+      const nameWithoutSpaceInput = nameInput.replace(/\s+/g, "").toLowerCase(); // スペースを除去，小文字に変換
+      const nameWithoutSpace = row[nameColumn - 1].replace(/\s+/g, "").toLowerCase(); // スペースを除去，小文字に変換
+      Logger.log(nameWithoutSpaceInput + " == " + nameWithoutSpace)
       const studentNumber = row[studentNumberColumn - 1];
       if (nameWithoutSpaceInput && nameWithoutSpace === nameWithoutSpaceInput) { // 氏名が一致する行を探す
         Logger.log("Found name: " + nameWithoutSpace);
